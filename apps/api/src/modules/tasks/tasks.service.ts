@@ -50,6 +50,10 @@ export class TasksService {
     };
   }
 
+  async findOne(id: number, userId: number): Promise<Task> {
+    return this.findOwnedTask(id, userId);
+  }
+
   async create(userId: number, dto: CreateTaskDto): Promise<Task> {
     const task = this.tasksRepository.create({
       title: dto.title,
