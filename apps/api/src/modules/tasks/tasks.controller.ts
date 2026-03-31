@@ -16,7 +16,7 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { ToggleTaskDto } from './dto/toggle-task.dto';
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { FindTasksQueryDto } from './dto/find-tasks-query.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
@@ -30,7 +30,7 @@ export class TasksController {
   @Get()
   findAll(
     @CurrentUser('id') userId: number,
-    @Query() query: PaginationQueryDto,
+    @Query() query: FindTasksQueryDto,
   ) {
     return this.tasksService.findAll(userId, query);
   }

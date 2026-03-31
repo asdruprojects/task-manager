@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
-import { PaginationQueryDto } from '../../common/dto/pagination-query.dto';
+import { FindTasksQueryDto, TaskStatus } from './dto/find-tasks-query.dto';
 
 @Injectable()
 export class TasksService {
@@ -13,12 +13,18 @@ export class TasksService {
     private readonly tasksRepository: Repository<Task>,
   ) {}
 
-  async findAll(userId: number, query: PaginationQueryDto) {
+  async findAll(userId: number, query: FindTasksQueryDto) {
     const page = query.page ?? 1;
     const perPage = query.perPage ?? 20;
     const skip = (page - 1) * perPage;
 
-    const where = { userId, active: true };
+    const where: Record<string, unknown> = { userId, active: true };
+
+    if (query.status === TaskStatus.COMPLETED) {
+      where.completed = true;
+    } else if (query.status === TaskStatus.PENDING) {
+      where.completed = false;
+    }
 
     const [items, itemCount] = await this.tasksRepository.findAndCount({
       where,
