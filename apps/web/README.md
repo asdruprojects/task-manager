@@ -4,7 +4,7 @@ Frontend **Next.js** (App Router) para el gestor de tareas. Consume el API media
 
 ## Requisitos
 
-- Node.js 18+
+- Node.js 20.9+ (Next.js 16)
 - API en ejecución (por defecto se asume `http://localhost:3000`)
 
 ## Configuración

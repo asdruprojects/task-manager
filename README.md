@@ -30,7 +30,7 @@ npm run build
 
 ### Requisitos
 
-- Node.js **18+** (el repo usa npm workspaces).
+- Node.js **20.9+** (requerido por Next.js 16; el repo usa npm workspaces).
 - PostgreSQL accesible desde tu máquina.
 
 ### Variables de entorno

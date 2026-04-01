@@ -4,7 +4,7 @@ API REST construida con **NestJS**, **TypeORM** y **PostgreSQL**: registro e ini
 
 ## Requisitos
 
-- Node.js 18+
+- Node.js 20.9+ (alineado con el monorepo / Next)
 - PostgreSQL y una base de datos creada (por ejemplo `task_manager`)
 
 ## Configuración
