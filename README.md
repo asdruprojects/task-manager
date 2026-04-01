@@ -103,6 +103,7 @@ Ahí puedes ver rutas, esquemas y probar endpoints con el botón *Authorize* par
 - **Frontend Next.js 16** con **React 19**, estilos con **Tailwind CSS 4** y utilidades como `tailwind-merge` / CVA donde aplica en `@repo/ui`.
 - **Estado:** **Context API** de React para la sesión de usuario (auth); **TanStack React Query** para datos remotos, caché y mutaciones.
 - **Contratos y servicios en paquetes:** evita divergencias entre tipos del cliente y del servidor y concentra la lógica HTTP en un solo lugar.
+- **Pruebas:** pruebas unitarias con **Jest** en el API (`apps/api`).
 
 ## Despliegue (producción)
 
