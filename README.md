@@ -2,7 +2,7 @@
 
 Monorepo con API en NestJS, frontend en Next.js y paquetes compartidos para contratos, llamadas HTTP y UI.
 
-## Cómo ejecutarlo (rápido)
+## Cómo ejecutarlo
 
 Desde la raíz del repositorio:
 
