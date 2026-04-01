@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useGetTasks, useToggleTask } from '@task-manager/services';
+import { useAuth } from '../../../context/auth-context';
 import type { TaskResponse, TaskStatus } from '@task-manager/contracts';
 import { Button } from '@repo/ui/atoms';
 import { InputSearchSimple, Tabs } from '@repo/ui/components';
@@ -20,6 +21,7 @@ const TABS = [
 const PER_PAGE = 10;
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = React.useState<TaskStatus>('all');
   const [page, setPage] = React.useState(1);
   const [allItems, setAllItems] = React.useState<TaskResponse[]>([]);
@@ -39,12 +41,15 @@ export default function DashboardPage() {
     return () => window.clearTimeout(timeout);
   }, [search]);
 
-  const { data, isLoading, isFetching } = useGetTasks({
-    page,
-    perPage: PER_PAGE,
-    status: activeTab,
-    search: debouncedSearch || undefined,
-  });
+  const { data, isLoading, isFetching } = useGetTasks(
+    {
+      page,
+      perPage: PER_PAGE,
+      status: activeTab,
+      search: debouncedSearch || undefined,
+    },
+    { userId: user?.id },
+  );
   const { mutate: toggleMutation } = useToggleTask();
 
   React.useEffect(() => {
@@ -67,6 +72,11 @@ export default function DashboardPage() {
     setPage(1);
     setAllItems([]);
   }, [debouncedSearch]);
+
+  React.useEffect(() => {
+    setPage(1);
+    setAllItems([]);
+  }, [user?.id]);
 
   const handleToggle = (task: TaskResponse) => {
     const next = !task.completed;

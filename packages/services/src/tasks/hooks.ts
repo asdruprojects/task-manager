@@ -9,10 +9,23 @@ import type {
 import { getTasks, getTask } from './queries';
 import { createTask, updateTask, deleteTask, toggleTask } from './mutations';
 
-export function useGetTasks(query?: FindTasksQuery) {
+export function useGetTasks(
+  query?: FindTasksQuery,
+  options?: { userId?: number | null },
+) {
+  const userId = options?.userId ?? null;
+  /** Sin 2.º argumento: compat (query activa). Con userId: solo si id > 0. */
+  const enabled =
+    options === undefined
+      ? true
+      : typeof userId === 'number' && userId > 0;
+
   return useQuery<PaginatedResponse<TaskResponse>>({
-    queryKey: ['tasks', 'list', query],
+    queryKey: ['tasks', 'list', userId, query],
     queryFn: () => getTasks(query),
+    enabled,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
 

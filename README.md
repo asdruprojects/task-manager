@@ -16,6 +16,8 @@ npm install
    - En `apps/web`: `.env.example` → `.env.local` (PowerShell: `Copy-Item .env.example .env.local`).
 3. Ajusta `DATABASE_URL` en `apps/api/.env` y `NEXT_PUBLIC_API_URL` en `apps/web/.env.local` (por defecto el API escucha en el puerto **3000** y el front en **3001**).
 
+Desde la **raíz del repo**, Turborepo levanta **a la vez el back (Nest, puerto 3000) y el front (Next, puerto 3001)**:
+
 ```sh
 npm run dev
 ```
@@ -50,7 +52,7 @@ Crea la base con tu herramienta preferida, por ejemplo en `psql`:
 CREATE DATABASE task_manager;
 ```
 
-En desarrollo, TypeORM puede sincronizar el esquema (`synchronize` activo fuera de producción). En **producción** no se sincroniza: el esquema se versiona con **migraciones** en `apps/api/src/migrations` y se aplican al arrancar el API (`migrationsRun`). Para generar una migración nueva tras cambiar entidades: `npm run migration:generate -- src/migrations/Nombre` desde `apps/api` (ver [apps/api/README.md](apps/api/README.md)).
+En desarrollo, TypeORM puede sincronizar el esquema creando automáticamente las tablas en la base de datos (`synchronize` activo fuera de producción). En **producción** no se sincroniza: el esquema se versiona con **migraciones** en `apps/api/src/migrations` y se aplican al arrancar el API (`migrationsRun`). Para generar una migración nueva tras cambiar entidades: `npm run migration:generate -- src/migrations/Nombre` desde `apps/api` (ver [apps/api/README.md](apps/api/README.md)).
 
 ### Arranque conjunto
 

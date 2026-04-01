@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type { UserPayload } from '@task-manager/contracts';
 
 interface AuthContextType {
@@ -15,6 +16,7 @@ interface AuthContextType {
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = React.useState<UserPayload | null>(null);
   const [token, setToken] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -26,13 +28,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
+        void queryClient.invalidateQueries({ queryKey: ['tasks'] });
       } catch {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('user');
       }
     }
     setIsLoading(false);
-  }, []);
+  }, [queryClient]);
 
   const login = React.useCallback(
     (newToken: string, newUser: UserPayload) => {
@@ -40,16 +43,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('user', JSON.stringify(newUser));
       setToken(newToken);
       setUser(newUser);
+      void queryClient.invalidateQueries({ queryKey: ['tasks'] });
     },
-    [],
+    [queryClient],
   );
 
   const logout = React.useCallback(() => {
+    queryClient.removeQueries({ queryKey: ['tasks'] });
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
     setToken(null);
     setUser(null);
-  }, []);
+  }, [queryClient]);
 
   const value = React.useMemo(
     () => ({ user, token, isAuthenticated: !!token, isLoading, login, logout }),
