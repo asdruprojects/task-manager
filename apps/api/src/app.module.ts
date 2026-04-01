@@ -1,3 +1,4 @@
+import { join } from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -17,13 +18,18 @@ import { TasksModule } from './modules/tasks/tasks.module';
 
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        url: config.get<string>('DATABASE_URL'),
-        autoLoadEntities: true,
-        synchronize: config.get<string>('NODE_ENV') !== 'production',
-        logging: config.get<string>('NODE_ENV') === 'development',
-      }),
+      useFactory: (config: ConfigService) => {
+        const isProd = config.get<string>('NODE_ENV') === 'production';
+        return {
+          type: 'postgres' as const,
+          url: config.get<string>('DATABASE_URL'),
+          autoLoadEntities: true,
+          synchronize: !isProd,
+          logging: config.get<string>('NODE_ENV') === 'development',
+          migrations: [join(__dirname, 'migrations', '*.js')],
+          migrationsRun: isProd,
+        };
+      },
     }),
 
     ThrottlerModule.forRoot({

@@ -50,7 +50,7 @@ Crea la base con tu herramienta preferida, por ejemplo en `psql`:
 CREATE DATABASE task_manager;
 ```
 
-En desarrollo, TypeORM puede sincronizar el esquema automáticamente (`synchronize` activo fuera de producción). En producción conviene desactivar `synchronize` y usar migraciones según tu despliegue.
+En desarrollo, TypeORM puede sincronizar el esquema (`synchronize` activo fuera de producción). En **producción** no se sincroniza: el esquema se versiona con **migraciones** en `apps/api/src/migrations` y se aplican al arrancar el API (`migrationsRun`). Para generar una migración nueva tras cambiar entidades: `npm run migration:generate -- src/migrations/Nombre` desde `apps/api` (ver [apps/api/README.md](apps/api/README.md)).
 
 ### Arranque conjunto
 
@@ -96,7 +96,7 @@ Ahí puedes ver rutas, esquemas y probar endpoints con el botón *Authorize* par
 - **Backend NestJS:** módulos por dominio (auth, users, tasks), validación con `class-validator`, configuración tipada y variables validadas al arrancar.
 - **Seguridad en backend:** [Helmet](https://helmetjs.github.io/) para cabeceras HTTP; CORS restringido en producción mediante `CLIENT_URL`; contraseñas con **bcrypt**; autenticación **JWT** (Passport).
 - **Límite de peticiones:** `@nestjs/throttler` aplicado de forma global (por ejemplo 100 solicitudes por ventana de tiempo) para reducir abuso.
-- **Persistencia:** **TypeORM** con PostgreSQL; en desarrollo se usa `synchronize` para agilizar el esquema (desactivar en producción).
+- **Persistencia:** **TypeORM** con PostgreSQL; en desarrollo `synchronize`; en producción **migraciones** y `migrationsRun` al arranque.
 - **Eliminación lógica:** las tareas no se borran físicamente del todo: se marca `active = false` y dejan de listarse para el usuario.
 - **Frontend Next.js 16** con **React 19**, estilos con **Tailwind CSS 4** y utilidades como `tailwind-merge` / CVA donde aplica en `@repo/ui`.
 - **Estado:** **Context API** de React para la sesión de usuario (auth); **TanStack React Query** para datos remotos, caché y mutaciones.

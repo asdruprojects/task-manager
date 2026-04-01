@@ -56,6 +56,28 @@ npm run start:prod
 
 El binario arranca con `node dist/main`.
 
+## Migraciones (TypeORM)
+
+En **producción** (`NODE_ENV=production`) el API **aplica migraciones pendientes al arrancar** (`migrationsRun`). No hace falta SQL manual en la BD.
+
+Las migraciones viven en `src/migrations/`. Nest las compila a `dist/migrations/*.js` y se cargan por **patrón glob** (no hace falta importar cada archivo en `app.module`).
+
+| Comando | Uso |
+|--------|-----|
+| `npm run migration:show` | Ver qué migraciones están aplicadas o pendientes (requiere `.env` con `DATABASE_URL`). |
+| `npm run migration:run` | Aplicar pendientes desde tu máquina (misma lógica que en prod). |
+| `npm run migration:revert` | Deshace la última migración. |
+
+**Cuando cambias entidades** (nueva columna, tabla, etc.), lo habitual es **generar** el diff contra la BD que ya tiene las migraciones anteriores aplicadas:
+
+```sh
+npm run migration:generate -- src/migrations/DescripcionDelCambio
+```
+
+TypeORM crea un archivo nuevo en `src/migrations/`. **Revísalo** (a veces hay que ajustar índices o nombres), luego commit y deploy.
+
+La **primera** migración del proyecto puede ser manual (como la inicial) o generada con la BD vacía tras alinear entidades; a partir de ahí, **generate** es la práctica más cómoda.
+
 ## Documentación de la API (Swagger)
 
 Con el servidor en marcha, abre en el navegador:
