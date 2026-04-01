@@ -47,4 +47,5 @@ export type TaskStatus = 'all' | 'pending' | 'completed';
 
 export interface FindTasksQuery extends PaginationInput {
   status?: TaskStatus;
+  search?: string;
 }

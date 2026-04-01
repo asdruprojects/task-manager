@@ -4,7 +4,7 @@ import React from 'react';
 import { useGetTasks, useToggleTask } from '@task-manager/services';
 import type { TaskResponse, TaskStatus } from '@task-manager/contracts';
 import { Button } from '@repo/ui/atoms';
-import { Tabs } from '@repo/ui/components';
+import { InputSearchSimple, Tabs } from '@repo/ui/components';
 import { TaskCard } from '../../../components/task-card';
 import { TaskCardSkeleton } from '../../../components/task-card-skeleton';
 import { CreateTaskModal } from '../../../components/create-task-modal';
@@ -23,16 +23,27 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = React.useState<TaskStatus>('all');
   const [page, setPage] = React.useState(1);
   const [allItems, setAllItems] = React.useState<TaskResponse[]>([]);
+  const [search, setSearch] = React.useState('');
+  const [debouncedSearch, setDebouncedSearch] = React.useState('');
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
   const [editTask, setEditTask] = React.useState<TaskResponse | null>(null);
   const [deleteTask, setDeleteTask] = React.useState<TaskResponse | null>(
     null,
   );
 
+  React.useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 300);
+
+    return () => window.clearTimeout(timeout);
+  }, [search]);
+
   const { data, isLoading, isFetching } = useGetTasks({
     page,
     perPage: PER_PAGE,
     status: activeTab,
+    search: debouncedSearch || undefined,
   });
   const { mutate: toggleMutation } = useToggleTask();
 
@@ -51,6 +62,11 @@ export default function DashboardPage() {
     setPage(1);
     setAllItems([]);
   };
+
+  React.useEffect(() => {
+    setPage(1);
+    setAllItems([]);
+  }, [debouncedSearch]);
 
   const handleToggle = (task: TaskResponse) => {
     const next = !task.completed;
@@ -111,6 +127,13 @@ export default function DashboardPage() {
           <span>Nueva Tarea</span>
         </Button>
       </div>
+
+      <InputSearchSimple
+        value={search}
+        onChangeValue={setSearch}
+        placeholder="Buscar por título o descripción"
+        containerClassName="max-w-md"
+      />
 
       <Tabs tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} />
 

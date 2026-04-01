@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Task } from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
@@ -17,21 +17,41 @@ export class TasksService {
     const page = query.page ?? 1;
     const perPage = query.perPage ?? 20;
     const skip = (page - 1) * perPage;
+    const search = query.search?.trim();
 
-    const where: Record<string, unknown> = { userId, active: true };
+    const queryBuilder = this.tasksRepository
+      .createQueryBuilder('task')
+      .where('task.userId = :userId', { userId })
+      .andWhere('task.active = :active', { active: true });
 
     if (query.status === TaskStatus.COMPLETED) {
-      where.completed = true;
+      queryBuilder.andWhere('task.completed = :completed', { completed: true });
     } else if (query.status === TaskStatus.PENDING) {
-      where.completed = false;
+      queryBuilder.andWhere('task.completed = :completed', {
+        completed: false,
+      });
     }
 
-    const [items, itemCount] = await this.tasksRepository.findAndCount({
-      where,
-      order: { createdAt: 'DESC' },
-      skip,
-      take: perPage,
-    });
+    if (search) {
+      queryBuilder.andWhere(
+        new Brackets((qb) => {
+          qb.where('LOWER(task.title) LIKE LOWER(:search)', {
+            search: `%${search}%`,
+          }).orWhere(
+            "LOWER(COALESCE(task.description, '')) LIKE LOWER(:search)",
+            {
+              search: `%${search}%`,
+            },
+          );
+        }),
+      );
+    }
+
+    const [items, itemCount] = await queryBuilder
+      .orderBy('task.createdAt', 'DESC')
+      .skip(skip)
+      .take(perPage)
+      .getManyAndCount();
 
     const pageCount = Math.max(1, Math.ceil(itemCount / perPage));
     const currentPage = Math.max(1, Math.min(page, pageCount));

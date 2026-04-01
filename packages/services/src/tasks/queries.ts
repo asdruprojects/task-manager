@@ -15,6 +15,7 @@ export async function getTasks(
   if (query?.perPage) params.set('perPage', String(query.perPage));
   if (query?.status && query.status !== 'all')
     params.set('status', query.status);
+  if (query?.search?.trim()) params.set('search', query.search.trim());
   const qs = params.toString();
   return api.get<PaginatedResponse<TaskResponse>>(
     `${TASKS_URL}${qs ? `?${qs}` : ''}`,
