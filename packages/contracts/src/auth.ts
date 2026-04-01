@@ -5,12 +5,17 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface RegisterResponse {
+  message: string;
+  user: UserPayload;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
-export interface AuthResponse {
+export interface LoginResponse {
   accessToken: string;
   user: UserPayload;
 }

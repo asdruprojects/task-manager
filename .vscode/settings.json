@@ -1,5 +1,8 @@
 {
-    "conventionalCommits.scopes": [
-        "api"
-    ]
+  "conventionalCommits.scopes": [
+    "api",
+    "web"
+  ],
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore"
 }

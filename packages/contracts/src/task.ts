@@ -33,7 +33,7 @@ export interface PageInfo {
 }
 
 export interface PaginatedResponse<T> {
-  totalCount: number;
+  count: number;
   items: T[];
   pageInfo: PageInfo;
 }
@@ -41,4 +41,10 @@ export interface PaginatedResponse<T> {
 export interface PaginationInput {
   page?: number;
   perPage?: number;
+}
+
+export type TaskStatus = 'all' | 'pending' | 'completed';
+
+export interface FindTasksQuery extends PaginationInput {
+  status?: TaskStatus;
 }
