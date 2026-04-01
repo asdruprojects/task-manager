@@ -104,6 +104,12 @@ Ahí puedes ver rutas, esquemas y probar endpoints con el botón *Authorize* par
 - **Estado:** **Context API** de React para la sesión de usuario (auth); **TanStack React Query** para datos remotos, caché y mutaciones.
 - **Contratos y servicios en paquetes:** evita divergencias entre tipos del cliente y del servidor y concentra la lógica HTTP en un solo lugar.
 
+## Despliegue (producción)
+
+- **Hosting:** [Railway](https://railway.app) — API (Nest) y frontend (Next) como servicios del mismo monorepo.
+- **Base de datos:** [Supabase](https://supabase.com) (PostgreSQL gestionado).
+- **Acceso al front (login):** [https://web-production-de358.up.railway.app/login](https://web-production-de358.up.railway.app/login)
+
 ---
 
 ## Estructura de paquetes
