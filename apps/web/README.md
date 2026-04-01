@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
+# Task Manager — Web
 
-## Getting Started
+Frontend **Next.js** (App Router) para el gestor de tareas. Consume el API mediante el paquete `@task-manager/services`, tipos de `@task-manager/contracts` y componentes de `@repo/ui`.
 
-First, run the development server:
+## Requisitos
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- API en ejecución (por defecto se asume `http://localhost:3000`)
+
+## Configuración
+
+Crea `.env.local` a partir del ejemplo (desde `apps/web`):
+
+```powershell
+Copy-Item .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+En bash: `cp .env.example .env.local`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+En `apps/web/.env.local` define:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load Inter, a custom Google Font.
+- `NEXT_PUBLIC_API_URL` — URL base del API **visible en el navegador** (en local suele ser `http://localhost:3000`).
 
-## Learn More
+Next solo expone al cliente las variables que empiezan por `NEXT_PUBLIC_`.
 
-To learn more about Next.js, take a look at the following resources:
+## Instalación
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Desde esta carpeta:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```sh
+npm install
+```
 
-## Deploy on Vercel
+O desde la raíz del monorepo: `npm install`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Ejecución
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Desarrollo** (puerto **3001** para no chocar con el API en 3000):
+
+```sh
+npm run dev
+```
+
+Abre [http://localhost:3001](http://localhost:3001).
+
+**Compilar para producción:**
+
+```sh
+npm run build
+```
+
+**Servir el build localmente:**
+
+```sh
+npm run start
+```
+
+(Por defecto Next puede usar el puerto 3000 en `start`; si el API también está en 3000, ejecuta uno de los dos en otro puerto o usa solo el front compilado contra un API remoto.)
+
+## Otros comandos
+
+| Script | Descripción |
+|--------|-------------|
+| `npm run lint` | ESLint |
+| `npm run check-types` | Comprobación de tipos (Next + tsc) |
+
+## Relación con el monorepo
+
+Esta app depende de workspaces internos:
+
+- `@task-manager/contracts` — contratos de datos
+- `@task-manager/services` — cliente HTTP y React Query
+- `@repo/ui` — biblioteca de UI (Tailwind, atoms, components)
+
+Para desarrollo conjunto, suele ser más cómodo ejecutar `npm run dev` en la **raíz** del repositorio y levantar API y web a la vez.

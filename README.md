@@ -1,159 +1,115 @@
-# Turborepo starter
+# Task Manager
 
-This Turborepo starter is maintained by the Turborepo core team.
+Monorepo con API en NestJS, frontend en Next.js y paquetes compartidos para contratos, llamadas HTTP y UI.
 
-## Using this example
+## Cómo ejecutarlo (rápido)
 
-Run the following command:
-
-```sh
-npx create-turbo@latest
-```
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Desde la raíz del repositorio:
 
 ```sh
-cd my-turborepo
-turbo build
+npm install
 ```
 
-Without global `turbo`, use your package manager:
+1. Crea la base de datos PostgreSQL (por ejemplo `task_manager`) y anota usuario, contraseña, host y puerto.
+2. Variables de entorno (ejemplo → archivo real):
+   - En `apps/api`: `.env.example` → `.env` (PowerShell: `Copy-Item .env.example .env`).
+   - En `apps/web`: `.env.example` → `.env.local` (PowerShell: `Copy-Item .env.example .env.local`).
+3. Ajusta `DATABASE_URL` en `apps/api/.env` y `NEXT_PUBLIC_API_URL` en `apps/web/.env.local` (por defecto el API escucha en el puerto **3000** y el front en **3001**).
 
 ```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+npm run dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Compila todas las apps y paquetes que tengan tarea `build`:
 
 ```sh
-turbo build --filter=docs
+npm run build
 ```
 
-Without global `turbo`:
+## Instalación y ejecución (detallada)
 
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+### Requisitos
+
+- Node.js **18+** (el repo usa npm workspaces).
+- PostgreSQL accesible desde tu máquina.
+
+### Variables de entorno
+
+| Ubicación | Origen | Propósito |
+|-----------|--------|-----------|
+| `apps/api/.env` | `apps/api/.env.example` | Conexión a Postgres, JWT, puerto del API, `CLIENT_URL` para CORS en producción. |
+| `apps/web/.env.local` | `apps/web/.env.example` | URL pública del API (`NEXT_PUBLIC_API_URL`) para el navegador. |
+
+En `apps/api/.env`, `DATABASE_URL` sigue el formato:
+
+`postgresql://USUARIO:CONTRASEÑA@localhost:5432/NOMBRE_BD`
+
+Crea la base con tu herramienta preferida, por ejemplo en `psql`:
+
+```sql
+CREATE DATABASE task_manager;
 ```
 
-### Develop
+En desarrollo, TypeORM puede sincronizar el esquema automáticamente (`synchronize` activo fuera de producción). En producción conviene desactivar `synchronize` y usar migraciones según tu despliegue.
 
-To develop all apps and packages, run the following command:
+### Arranque conjunto
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+`npm run dev` ejecuta [Turborepo](https://turborepo.dev/) y levanta en paralelo el API y el front (y lo que cada workspace defina como `dev`).
 
-```sh
-cd my-turborepo
-turbo dev
+### Arranque por app
+
+- **Solo API:** `cd apps/api && npm run dev` — ver [apps/api/README.md](apps/api/README.md).
+- **Solo web:** `cd apps/web && npm run dev` — ver [apps/web/README.md](apps/web/README.md).
+
+---
+
+## Arquitectura
+
+```
+apps/
+  api/          # NestJS: auth (JWT), usuarios, tareas, TypeORM + PostgreSQL
+  web/          # Next.js (App Router): páginas y layouts que consumen paquetes
+packages/
+  contracts/    # Tipos y DTOs compartidos (@task-manager/contracts)
+  services/     # Cliente API + hooks React Query (@task-manager/services)
+  ui/           # Componentes reutilizables (@repo/ui): atoms, components, util cn()
+  eslint-config/, typescript-config/  # Configuración compartida de tooling
 ```
 
-Without global `turbo`, use your package manager:
+El front no duplica la forma de los datos: los contratos viven en `packages/contracts`; las peticiones y mutaciones van en `packages/services`; la capa visual compartida en `packages/ui`.
 
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+---
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Documentación de API
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Con el API en marcha, la documentación interactiva **OpenAPI (Swagger)** está en:
 
-```sh
-turbo dev --filter=web
-```
+**`/api/docs`** — por ejemplo [http://localhost:3000/api/docs](http://localhost:3000/api/docs) si usas el puerto por defecto.
 
-Without global `turbo`:
+Ahí puedes ver rutas, esquemas y probar endpoints con el botón *Authorize* para JWT.
 
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+---
 
-### Remote Caching
+## Decisiones técnicas
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+- **Monorepo (npm workspaces + Turborepo):** un solo `npm install`, tareas cacheadas y desarrollo paralelo de API y web.
+- **Backend NestJS:** módulos por dominio (auth, users, tasks), validación con `class-validator`, configuración tipada y variables validadas al arrancar.
+- **Seguridad en backend:** [Helmet](https://helmetjs.github.io/) para cabeceras HTTP; CORS restringido en producción mediante `CLIENT_URL`; contraseñas con **bcrypt**; autenticación **JWT** (Passport).
+- **Límite de peticiones:** `@nestjs/throttler` aplicado de forma global (por ejemplo 100 solicitudes por ventana de tiempo) para reducir abuso.
+- **Persistencia:** **TypeORM** con PostgreSQL; en desarrollo se usa `synchronize` para agilizar el esquema (desactivar en producción).
+- **Eliminación lógica:** las tareas no se borran físicamente del todo: se marca `active = false` y dejan de listarse para el usuario.
+- **Frontend Next.js 16** con **React 19**, estilos con **Tailwind CSS 4** y utilidades como `tailwind-merge` / CVA donde aplica en `@repo/ui`.
+- **Estado:** **Context API** de React para la sesión de usuario (auth); **TanStack React Query** para datos remotos, caché y mutaciones.
+- **Contratos y servicios en paquetes:** evita divergencias entre tipos del cliente y del servidor y concentra la lógica HTTP en un solo lugar.
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+---
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## Estructura de paquetes
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+| Paquete | Nombre npm | Rol |
+|---------|------------|-----|
+| Contratos | `@task-manager/contracts` | Tipos e interfaces compartidos (auth, tasks, etc.). |
+| Servicios | `@task-manager/services` | Funciones que llaman al API + hooks de React Query. |
+| UI | `@repo/ui` | Componentes presentacionales exportados por subpaths (`atoms`, `components`, `utils/cn`). |
 
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+La app `web` depende de estos paquetes mediante referencias de workspace (`*` en `package.json`).
